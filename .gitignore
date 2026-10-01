@@ -1,0 +1,24 @@
+# Symfony
+api/.env
+api/.env.local
+api/vendor/
+api/var/
+
+# React
+react/node_modules/
+react/dist/
+react/.env
+react/.env.local
+
+# Flutter
+flutter/.dart_tool/
+flutter/build/
+flutter/.env
+flutter/.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# JWT
+api/config/jwt/
