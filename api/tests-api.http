@@ -1,0 +1,105 @@
+@baseUrl = http://127.0.0.1:8000
+@coachEmail = coach@opengym.test
+@coachPassword = Coach123!
+@memberEmail = membre1@opengym.test
+@memberPassword = Membre123!
+
+### LOGIN COACH
+# @name loginCoach
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "{{coachEmail}}",
+  "password": "{{coachPassword}}"
+}
+
+### LOGIN MEMBRE
+# @name loginMember
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "{{memberEmail}}",
+  "password": "{{memberPassword}}"
+}
+
+### F2 - Liste des séances à venir
+GET {{baseUrl}}/api/seances
+Authorization: Bearer {{loginMember.response.body.$.token}}
+### F3 - Détail d'une séance
+GET {{baseUrl}}/api/seances/1
+Authorization: Bearer {{loginMember.response.body.$.token}}
+
+### F7 - Coach crée une séance
+# @name createSeance
+POST {{baseUrl}}/api/seances
+Authorization: Bearer {{loginCoach.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "titre": "Test HTTP",
+  "description": "Séance créée depuis le fichier .http",
+  "dateHeure": "2026-10-10 18:00:00",
+  "duree": 60,
+  "placesTotal": 10
+}
+### F7 - Coach modifie la séance créée
+PUT {{baseUrl}}/api/seances/{{createSeance.response.body.$.id}}
+Authorization: Bearer {{loginCoach.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "titre": "Test HTTP modifié",
+  "description": "Séance modifiée depuis le fichier .http",
+  "dateHeure": "2026-10-10 19:00:00",
+  "duree": 75,
+  "placesTotal": 12
+}
+### F7 - Coach supprime la séance créée
+DELETE {{baseUrl}}/api/seances/{{createSeance.response.body.$.id}}
+Authorization: Bearer {{loginCoach.response.body.$.token}}
+
+### F8 - Coach consulte les participants
+GET {{baseUrl}}/api/seances/5/participants
+Authorization: Bearer {{loginCoach.response.body.$.token}}
+
+### F4 - Membre réserve une séance
+POST {{baseUrl}}/api/seances/1/reservations
+Authorization: Bearer {{loginMember.response.body.$.token}}
+
+### F6 - Membre consulte ses réservations
+GET {{baseUrl}}/api/me/reservations
+Authorization: Bearer {{loginMember.response.body.$.token}}
+
+### F5 - Membre annule sa réservation
+DELETE {{baseUrl}}/api/reservations/1
+Authorization: Bearer {{loginMember.response.body.$.token}}
+
+### SECURITE - Sans JWT
+GET {{baseUrl}}/api/seances
+
+### SECURITE - Membre interdit de créer une séance
+POST {{baseUrl}}/api/seances
+Authorization: Bearer {{loginMember.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "titre": "Tentative membre",
+  "description": "Cette requête doit être refusée.",
+  "dateHeure": "2026-10-10 18:00:00",
+  "duree": 60,
+  "placesTotal": 10
+}
+
+### REGLE METIER - Double réservation
+POST {{baseUrl}}/api/seances/2/reservations
+Authorization: Bearer {{loginMember.response.body.$.token}}
+
+### REGLE METIER - Séance complète
+POST {{baseUrl}}/api/seances/5/reservations
+Authorization: Bearer {{loginMember.response.body.$.token}}
+
+### REGLE METIER - Séance passée
+POST {{baseUrl}}/api/seances/6/reservations
+Authorization: Bearer {{loginMember.response.body.$.token}}
